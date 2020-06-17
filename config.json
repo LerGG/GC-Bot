@@ -1,0 +1,15 @@
+{
+    "PREFIX": "!",
+    "TOKEN": "NzIyODU0NTM0MzEzMDE3MzU2.XuqJWQ.zqBUQ37iyrXAVViJVhunVuVE98M",
+    "ACTIVITYMESSAGE": "Type !help",
+    "ADMINNAME": "Admin",
+    "COACHNAME": "Coach",
+    "MEMBERNAME": "Dota 2 member",
+    "GAMENAME": "Dota",
+    "GUILDID": "719550789261066260",
+    "SIGNUPCHANNEL": "active-players",
+    "MEMBERSHIPLOG": "membership-log",
+    "DAYLIEVIDEOS": "daylie-videos",
+    "REPLAYVIDEOS": "replay-analysis",
+    "LIVESESSIONS": "live-sessions"
+}
