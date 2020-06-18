@@ -88,6 +88,50 @@ client.on('message', message => {
 BOT COMMANDS START HERE
 */
 
+/*
+  helpadmin
+  Returns Admin Command list
+*/
+  if (command === 'helpadmin') {
+    if (_hasRole(message, ADMINNAME)) {
+      return message.channel.send('```GamerzClass-Bot developed by Ler_GG.\n\
+      !Activityclear - Reset Bot activity to default\n\
+      !Activityset  - Sets playing "activtiy"\n\
+      !help         - Community Commands\n\
+      !Idadd        - Adds ID to pending membership list\n\
+      !Idlist       - List of pending membership IDS\n\
+      !Idremove     - Removes ID of pending membership list\n\
+      !Memberadd    - Grants User Membership Role\n\
+      !Memberremove - Removes User Membership Role\n\
+      !Server       - Server Info\n\
+      !Status       - Bot Status\n\
+      !Tagadd       - Adds Tag to pending membership list\n\
+      !Taglist      - List of pending membership Tags\n\
+      !Tagremove    - Removes Tag of pending membership list```\
+      ');
+    }
+  }
+
+// Activityclear Activityset help Idadd Idlist Idremove Memberadd Memberremove Server Status Tagadd Taglist Tagremove
+
+// Tier Region Add Remove videos
+
+/*
+  helpadmin
+  Returns Member Command list
+*/
+  if (command === 'help') {
+    if (_hasRole(message, MEMBERNAME)) {
+      return message.channel.send('```List of Community Commands:\n\
+      !Add    - Adds playerd to active player list\n\
+      !Remove - Removes entry from active-players list\n\
+      !Region - Shows supported Regions\n\
+      !Tier   - Displays Battlecup Tiers by name\n\
+      !Videos - Lists channels containing videos```\
+      ');
+    }
+  }
+
   /* 
     Bot Status
   */
@@ -131,7 +175,7 @@ BOT COMMANDS START HERE
     Links to all videoe channels
   */
   if (command === 'videos') {
-    if (_hasRole(message, ADMINNAME) || _hasRole(message, ADMINNAME) || _hasRole(message, COACHNAME)) {
+    if (_hasRole(message, ADMINNAME) || _hasRole(message, MEMBERNAME) || _hasRole(message, COACHNAME)) {
 
       // Get channel obejcts
       const replayChannel      = _findChannel(GUILDID,REPLAYVIDEOS,client)
