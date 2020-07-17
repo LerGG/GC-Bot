@@ -3,23 +3,44 @@
 const fs = require('fs')
 const Discord = require('discord.js')
 const { PREFIX, TOKEN,
+        RALLEG, MIRCH,
+        LERGG, WELCOME,
+        GAMERZCLASSFAQ, RULES,
         ACTIVITYMESSAGE, ADMINNAME,
         MEMBERNAME, COACHNAME, 
         GUILDID,  SIGNUPCHANNEL, 
         MEMBERSHIPLOG, DAYLIEVIDEOS,
-        REPLAYVIDEOS, LIVESESSIONS, } = require('./config.json')
+        REPLAYVIDEOS, LIVESESSIONS,
+        REPLAYSUBMIT, DOTABUFFSUBMIT,
+        MAINCATEGORY, GENERALCHANNEL,
+        QANDACHANNEL, DOTACHANNELS,
+        SERVERLOG
+      } = require('./config.json')
 
-// const { HELPER }
-const { _isEmpty, _hasRole, _getUserFromMention, itToMdList, _findChannel, _dateTime } = require('./functions/helpfunctions.js')
+// 
+const { _isEmpty, _hasRole, _getUserFromMention, itToMdList, _findChannel, _dateTime, _toMention, _hasRoleMember, _findSubChannel, _toChannel, _upperCaseFirst } = require('./functions/helpfunctions.js')
+const { _embedSupremeMember, _embedNewGuildMember } = require('./embeds/embeds.js')
 
-// const { strict } = require('assert')
-
+// Regex for discord tags
 const REGEXDISCORDTAG_REGULAR = new RegExp(/#\d\d\d\d/)
 const REGEXDISCORDTAG_FALSE = new RegExp(/#\d\d\d\d\d/)
+
+// Regex for frind id, at least 5 digits
 const REGEXFRINDID = new RegExp(/\d\d\d\d\d/)
 
+// Holds membership add Ids
 const membershipIDs = new Set()
+
+// Holds memberhip add Tags
 const membershipTAGs = new Set()
+
+// Holds skill brackets
+const brackets = new Set(["herald","guardian","crusader","archon","legend","ancient","divine","immortal"])
+
+/*
+*   DISCORD CLIENT STARTS HERE
+*/
+
 
 // Initialize Discord Client object (BOT)
 const client = new Discord.Client({
@@ -45,33 +66,118 @@ for (const file of commandFiles) {
 client.on('ready', () => {
   console.log('Bot started')
   client.user.setActivity(ACTIVITYMESSAGE)
+})
+
+// Scans for member update events (roles, ...)
+client.on('guildMemberUpdate', (oldMember, newMember) => {
+
+  // Video Channels
+  const replayChannel         = _findChannel(GUILDID,REPLAYVIDEOS,client)
+  const daylieVideoChannel    = _findChannel(GUILDID,DAYLIEVIDEOS,client)
+  const liveSessionChannel    = _findChannel(GUILDID,LIVESESSIONS,client)
+  const replaySubmitChannel   = _findChannel(GUILDID,REPLAYSUBMIT,client)
+  const dotabuffSubmitChannel = _findChannel(GUILDID,DOTABUFFSUBMIT,client)
+  const qandaChannel          = _findChannel(GUILDID,QANDACHANNEL,client)
+
+    // Log Channel object
+/*   const logChannel = _findChannel(GUILDID,MEMBERSHIPLOG,client) */
+
+  // Membership general channel
+  const welcomeChannel = _findSubChannel(GUILDID,DOTACHANNELS,GENERALCHANNEL,client)
+
+  // Welcomes added Dota 2 Memberships
+  if (_hasRoleMember(oldMember,MEMBERNAME) === false && _hasRoleMember(newMember,MEMBERNAME) === true) {
+    
+    // Log channel entry for added users
+/*     logChannel.send(`[${_dateTime(true)}]: Added ${_toMention(newMember.user.id)} to Dota Supreme-Membership!`) */
+    
+    // General Channel welcome msg
+    welcomeChannel.send(`Welcome ${_toMention(newMember.user.id)} to the Dota 2 Membership!`)
+    
+    // Membership Direct welcome message
+    const newMemberShipWelcomeMSG = ` Our Video Channels: 
+    ${_toChannel(daylieVideoChannel.id)}, ${_toChannel(replayChannel.id)}, ${_toChannel(liveSessionChannel.id)}
+    Submit a replay or Dotabuff and have a chance to get it analyzed by one of our coaches here: 
+    ${_toChannel(replaySubmitChannel.id)}, ${_toChannel(dotabuffSubmitChannel.id)}
+    If you have any questions regarding GamerzClass service, contact ${_toMention(RALLEG)} or ${_toMention(MIRCH)}. \n\
+    For Dota related questions, just ask ${_toMention(LERGG)} or any other coach here ${_toChannel(qandaChannel.id)}. \n\
+    \n\
+    *Your GamerzClass Team*\n\
+    \n\
+    `
+    // Sends direct message with the welcome membership welcome embed
+    return newMember.send(_embedSupremeMember(newMemberShipWelcomeMSG))
+  }
+
+  // Logs membership removals
+/*   if (_hasRoleMember(oldMember,MEMBERNAME) === true && _hasRoleMember(newMember,MEMBERNAME) === false) {
+    return logChannel.send(`[${_dateTime(true)}]: Removed ${_toMention(newMember.user.id)} from Dota Supreme-Membership!`)
+  } */
 
 })
 
 // Scans for arriving members
 client.on('guildMemberAdd', (member) => {
 
+  // Logs new guild arrivals into a seperate channel
+/*   const serverlog = _findChannel(GUILDID,SERVERLOG, client) */
+
+  /////////////////////////////////////////////////////////////
+
+  // TODO SERVER LOG IMPLEMENTATION
+
+  //////////////////////////////////////////////////////////////
+
+
+
+  // Welcome new users to the discord server
+  // Posts in the Gamerzclass general channel
+  // Searches for the 1. general channel
+  const gamerzClassGeneral = _findChannel(GUILDID,GENERALCHANNEL, client)
+  const gamerzClassFAQ = _findChannel(GUILDID,GAMERZCLASSFAQ, client)
+  const gamerzClassRules = _findChannel(GUILDID,RULES, client)
+  const gamerzClassWelcome = _findChannel(GUILDID,WELCOME, client)
+
+  // Arriving Guild member welcome message
+  const newGuildMemberWelcomeMSG = `Welcome ${_toMention(member.user.id)}! 
+  If you have any questions regarding our services, ask here ${_toChannel(gamerzClassGeneral.id)}!\n\
+  A moderator will answer your questions as soon as possible. \n\
+  Office hours are 8-5PM CEST.\n\
+  Please select the game you are playing here ${_toChannel(gamerzClassWelcome)}.\n\
+  Also make sure to take a look into the ${_toChannel(gamerzClassFAQ.id)}, as well as the ${_toChannel(gamerzClassRules.id)}.\n\
+  Have a nice stay!\n\
+  \n\
+  *Your GamerzClass Team*\n\
+  `
+  
+  // Sends direct message to newly arriving members
+  member.send(_embedNewGuildMember(newGuildMemberWelcomeMSG))
+
   // Log Channel object
-  const logChannel = _findChannel(GUILDID,MEMBERSHIPLOG,client)
+/*   const logChannel = _findChannel(GUILDID,MEMBERSHIPLOG,client) */
 
   // Scan for user arriving, delete set entry,
   // Grant discord Role
-  if (membershipIDs.delete(member.user.id)) {
+/*   if (membershipIDs.delete(member.user.id)) {
     const role = member.guild.roles.cache.find(role => role.name === MEMBERNAME)
     member.roles.add(role)
-    return logChannel.send(`[AUTOMATED; ${_dateTime()}]:Granted ${member.user.id} with ${member.user.tag} dota membership status!`)
-  }
+    return logChannel.send(`[AUTOMATED; ${_dateTime(true)}]:Granted ${member.user.id} with ${member.user.tag} dota membership status!`)
+  } */
 
   // Scans for user TAGS and adds spezific tags to role
-  if (membershipTAGs.delete(member.user.tag.toLowerCase())) {
+/*    if (membershipTAGs.delete(member.user.tag.toLowerCase())) {
     const role = member.guild.roles.cache.find(role => role.name === MEMBERNAME)
     member.roles.add(role)
-    return logChannel.send(`[AUTOMATED; ${_dateTime()}]:Granted ${member.user.tag} dota membership status!`)
-  }
-})
+    return logChannel.send(`[AUTOMATED; ${_dateTime(true)}]:Granted ${member.user.tag} dota membership status!`)
+  } */
+}) 
 
-// Listen for messages
-client.on('message', message => {
+// 
+// COMMANDS / MESSAGES START HERE
+//
+
+
+/* client.on('message', message => {
 
   // Ignore itself and other bots
   // Infinite command loop protection
@@ -82,17 +188,34 @@ client.on('message', message => {
 
   // Returns command arguments after PREFIX
   const args = message.content.slice(PREFIX.length).trim().split(/ +/g)
-  const command = args.shift().toLowerCase()
+  const command = args.shift().toLowerCase() */
 
 /*
 BOT COMMANDS START HERE
 */
 
+
+///////////////////////////////////////////////////////////////////
+//
+//                TEST CODE
+//
+//////////////////////////////////////////////////////////////////
+
+/* if (command === 'test') {
+  message.channel.send(embedSupremeMemberWelcome)
+} */
+
+
+/* if (command === 'test') {
+  client.commands.get('test').execute(message, client)
+} */
+
+
 /*
   helpadmin
   Returns Admin Command list
 */
-  if (command === 'helpadmin') {
+/*   if (command === 'helpadmin') {
     if (_hasRole(message, ADMINNAME)) {
       return message.channel.send('```GamerzClass-Bot developed by Ler_GG.\n\
       !Activityclear - Reset Bot activity to default\n\
@@ -110,71 +233,72 @@ BOT COMMANDS START HERE
       !Tagremove    - Removes Tag of pending membership list```\
       ');
     }
-  }
-
-// Activityclear Activityset help Idadd Idlist Idremove Memberadd Memberremove Server Status Tagadd Taglist Tagremove
-
-// Tier Region Add Remove videos
+  } */
 
 /*
-  helpadmin
+  help
   Returns Member Command list
 */
-  if (command === 'help') {
+/*   if (command === 'help') {
     if (_hasRole(message, MEMBERNAME)) {
-      return message.channel.send('```List of Community Commands:\n\
+      const generalDotaChannel = _findSubChannel(GUILDID,DOTACHANNELS,GENERALCHANNEL,client) 
+      return message.channel.send(`If you have questions regarding the Dota 2 Supreme Membership,\n\
+      ask here: ${_toChannel(generalDotaChannel.id)}\n\
+      List of Community Commands:\n\
       !Add    - Adds playerd to active player list\n\
       !Remove - Removes entry from active-players list\n\
       !Region - Shows supported Regions\n\
-      !Tier   - Displays Battlecup Tiers by name\n\
-      !Videos - Lists channels containing videos```\
-      ');
+      !bracket   - Displays Brackets by name\n\
+      !videos - Lists channels containing videos\n\
+      !submit - Analysis Submit Channels\
+      `); 
     }
-  }
-
+  }  
+ */
   /* 
     Bot Status
   */
-  if (command === 'status') {
+/*   if (command === 'status') {
     if (_hasRole(message, ADMINNAME)) {
       client.commands.get('status').execute(message, args)
     }
-  }
+  } */
 
   /* 
     Server
     Return Server status
   */
-  if (command === 'server') {
+/*   if (command === 'server') {
     if (_hasRole(message, ADMINNAME)) {
       client.commands.get('server').execute(message, args)
     }
-  }
+  } */
 
   /* 
     Activityclear
     Clears Bot activity and sets default
   */
-  if (command === 'activityclear') {
+/*   if (command === 'activityclear') {
     if (_hasRole(message, ADMINNAME)) {
       client.commands.get('activityclear').execute(message, ACTIVITYMESSAGE)
     }
-  }
+  } */
 
   /* 
     Activityset
     Sets bot activity to given string
   */
-  if (command === 'activityset') {
+/*   if (command === 'activityset') {
     if (_hasRole(message, ADMINNAME)) {
       client.commands.get('activityset').execute(message, args, client)
     }
-  }
+  } */
+
   /* 
     Videos
     Links to all videoe channels
   */
-  if (command === 'videos') {
+/*   if (command === 'videos') {
     if (_hasRole(message, ADMINNAME) || _hasRole(message, MEMBERNAME) || _hasRole(message, COACHNAME)) {
 
       // Get channel obejcts
@@ -185,19 +309,15 @@ BOT COMMANDS START HERE
       if (replayChannel === undefined || replayChannel === undefined || replayChannel === undefined) {
         return message.channel.send("Channels not found. Please check the Bot .config!")
       }
-      // Builds Discord channel Tags
-      const replayChannelID      = "<#"+replayChannel.id+">"
-      const daylieVideoChannelID = "<#"+daylieVideoChannel.id+">"
-      const liveSessionChannelID = "<#"+liveSessionChannel.id+">"
-      return message.channel.send(`Our Video Channels: ${replayChannelID} ${daylieVideoChannelID} ${liveSessionChannelID}`)
+      return message.channel.send(`Our Video Channels: ${_toChannel(replayChannel.id)} ${_toChannel(daylieVideoChannel.id)} ${_toChannel(liveSessionChannel.id)}`)
     }
-  }
+  } */
 
   /*
     Idlist
     Shows Id List of pending memperships
   */
-  if (command === 'idlist') {
+/*   if (command === 'idlist') {
     if (_hasRole(message, ADMINNAME)) {
       if (args.length > 0) {
         return message.channel.send('!IDlist: Too many Arguments!')
@@ -207,13 +327,13 @@ BOT COMMANDS START HERE
         return message.channel.send(`Pending Membership IDs: ${itToMdList(membershipIDs)}`)
       }
     }
-  }
+  } */
 
   /*
     Idadd
     Adds id to pending memgership list
   */
-  if (command === 'idadd') {
+/*   if (command === 'idadd') {
     if (_hasRole(message, ADMINNAME)) {
       // Command exception and ID Integrity (17-19 digits length)
       if (!args.length || args.length > 1) {
@@ -230,13 +350,13 @@ BOT COMMANDS START HERE
         return message.reply(`Added ID: ${args[0]} to Awaiting Membership List!`)
       }
     }
-  }
+  } */
 
   /*
     Idremove
     Removes ID from pending memgership list
   */
-  if (command === 'idremove') {
+/*   if (command === 'idremove') {
     if (_hasRole(message, ADMINNAME)) {
       // Command exception and ID Integrity (17-19 digits length)
       if (!args.length || args.length > 1) {
@@ -255,13 +375,13 @@ BOT COMMANDS START HERE
         return message.channel.send(`ID ${args[0]} not found as pending IDs.`)
       }
     }
-  }
+  } */
 
   /*
     Taglist
     Lists Tags of pending memerships
   */
-  if (command === 'taglist') {
+/*   if (command === 'taglist') {
     if (_hasRole(message, ADMINNAME)) {
       if (args.length > 0) {
         return message.channel.send('!taglist: Too many Arguments!')
@@ -271,13 +391,13 @@ BOT COMMANDS START HERE
         return message.channel.send(`Pending Membership Tags: ${itToMdList(membershipTAGs)}`)
       }
     }
-  }
+  } */
 
   /*
     Tagadd
     Adds tag to pending membership
   */
-  if (command === 'tagadd') {
+/*   if (command === 'tagadd') {
     if (_hasRole(message, ADMINNAME)) {
       // Exception: Command arguments empty
       if (_isEmpty(args) || args.length > 1) {
@@ -298,13 +418,13 @@ BOT COMMANDS START HERE
         return message.reply(`Tag added: ${concatedArray} to Awaiting Membership List!`)
       }
     }
-  }
+  } */
   
   /*
     Tagremove
     Removes tag from pending membership list
   */
-  if (command === 'tagremove') {
+/*   if (command === 'tagremove') {
     if (_hasRole(message, ADMINNAME)) {
       // Exception: Command arguments empty
       if (_isEmpty(args) || args.length > 1) {
@@ -321,13 +441,13 @@ BOT COMMANDS START HERE
         return message.channel.send(`TAG ${args[0]} not found as pending TAG.`)
       }
     }
-  }
+  } */
 
   /*
     Memberadd
     Adds member to the membership
   */
-  if (command === 'memberadd') {
+/*   if (command === 'memberadd') {
     if (_hasRole(message, COACHNAME) || _hasRole(message, ADMINNAME)) {
       // Argument Exceptions
       if (!args.length || args.length > 1) {
@@ -342,17 +462,17 @@ BOT COMMANDS START HERE
         const role = message.guild.roles.cache.find(role => role.name === MEMBERNAME)
         message.guild.member(taggedUser).roles.add(role)
         const logChannel = _findChannel(GUILDID,MEMBERSHIPLOG,client)
-        logChannel.send(`[!memberadd; ${_dateTime()}]: Granted ${taggedUser} "${MEMBERNAME}" Role!`)
+        logChannel.send(`[!memberadd; ${_dateTime(true)}]: Granted ${taggedUser} "${MEMBERNAME}" Role!`)
         return message.channel.send(`Added User ${taggedUser} to "${MEMBERNAME}"!`)
       }
     }
-  }
+  } */
 
   /*
     Memberremove
     Removes member of the membership
   */
-  if (command === 'memberremove') {
+/*   if (command === 'memberremove') {
     if (_hasRole(message, COACHNAME) || _hasRole(message, ADMINNAME)) {
       // Argument Exceptions
       if (!args.length || args.length > 1) {
@@ -367,41 +487,41 @@ BOT COMMANDS START HERE
         const role = message.guild.roles.cache.find(role => role.name === MEMBERNAME)
         message.guild.member(taggedUser).roles.remove(role)
         const logChannel = _findChannel(GUILDID,MEMBERSHIPLOG,client)
-        logChannel.send(`[!memberremove; ${_dateTime()}]: Removed ${taggedUser} from "${MEMBERNAME}"!`)
+        logChannel.send(`[!memberremove; ${_dateTime(true)}]: Removed ${taggedUser} from "${MEMBERNAME}"!`)
         return message.channel.send(`Removed User ${taggedUser} from "${MEMBERNAME}"!`)
       }
     }
-  }
+  } */
 
   /*
     Tier
     Shows Battlecup Tiers
   */
-  if (command === 'tier' || command === 'tiers') {
+/*   if (command === 'bracket' || command === 'brackets' || command === 'tier' || command === 'tiers') {
     if (_hasRole(message, MEMBERNAME)) {
-      return client.commands.get('tier').execute(message, args)
+      return client.commands.get('bracket').execute(message, args)
     } else {
       return message.reply('Insufficient Discord Role')
     }
-  }
+  } */
 
   /* 
     Region
     Shows available regions
   */
-  if (command === 'region' || command === 'regions') {
+/*   if (command === 'region' || command === 'regions') {
     if (_hasRole(message, MEMBERNAME) || _hasRole(message, ADMINNAME) ) {
       return client.commands.get('region').execute(message, args)
     } else {
       return message.reply('Insufficient Discord Role')
     }
-  }
+  } */
 
   /*
     Remove
     Removes sign up channel entry
   */
-  if (command === 'remove') {
+/*   if (command === 'remove') {
     if (_hasRole(message, MEMBERNAME) || _hasRole(message, ADMINNAME)) {
 
       if (!args.length) {
@@ -430,13 +550,13 @@ BOT COMMANDS START HERE
         }
       }
     }
-  }
+  } */
 
   /*
     Add
     Adds player to the active-players channel
   */
-  if (command === 'add') {
+/*   if (command === 'add') {
     if (_hasRole(message, MEMBERNAME) || _hasRole(message, ADMINNAME)) {
       // Wrong Argument-Count Exceptions
       if (!args.length) {
@@ -456,13 +576,10 @@ BOT COMMANDS START HERE
         if (!(args[1] === 'eu' || args[1] === 'na' || args[1] === 'sea')) {
           return message.reply('Wrong REGION. Use: EU,NA,SEA')
         }
-        // Check Bcup Tier Number
-        if (isNaN(args[2])) {
-          return message.reply('Wrong BC_Tier: Use Numbers 3-8')
-        }
-        // Check Bcup Tier
-        if (args[2] < 3 || args[2] > 8) {
-          return message.reply('Wrong BC_Tier: Only 3-8 allowed')
+        // Check Bcup bracket
+        // Herald | Guardian| Crusader | Archon | Legend | Ancient | Divine | Immortal
+        if (!brackets.has(args[2].toLowerCase())) {
+          return message.reply('Wrong Bracket, Use: Herald | Guardian | Crusader | Archon | Legend | Ancient | Divine | Immortal')
         }
       }
       // Sign up player if channels setup properly
@@ -470,11 +587,11 @@ BOT COMMANDS START HERE
       if (signUpChannel === undefined) {
         message.reply("SignUp channel not found on this discord guild. Check bot config!")
       } else {
-        return signUpChannel.send(`${message.author} signed Up. Frind-ID: ${args[0]} | Region: ${args[1]} | BC-Tier: ${args[2]}`)
+        return signUpChannel.send(`${message.author} signed Up. Frind-ID: **${args[0]}** | Region: **${args[1].toUpperCase()}** | Rank: **${_upperCaseFirst(args[2])}**`)
       }
     }
   }
-})
+}) */
 
 // LOGIN TOKEN
 client.login(TOKEN)
