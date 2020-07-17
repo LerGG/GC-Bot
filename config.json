@@ -13,7 +13,7 @@
     "SIGNUPCHANNEL": "active-players",
     "MEMBERSHIPLOG": "membership-log",
     "SERVERLOG":"server-log",
-    "DAYLIEVIDEOS": "daylie-videos",
+    "DAYLIEVIDEOS": "dayly-videos",
     "REPLAYVIDEOS": "replay-analysis",
     "REPLAYSUBMIT": "replay-analysis-submit",
     "DOTABUFFSUBMIT": "dotabuff-analysis-submit",
