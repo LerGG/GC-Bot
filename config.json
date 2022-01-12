@@ -1,12 +1,12 @@
 {
     "PREFIX": "!",
     "TOKEN": "",
-    "ACTIVITYMESSAGE": "www.gamerzclass.com",
+    "ACTIVITYMESSAGE": "",
     "ADMINNAME": "Admin",
     "COACHNAME": "Coach",
     "MEMBERNAME": "Dota 2 member",
     "GAMENAME": "Dota",
-    "GUILDID": "654810957582958607",
+    "GUILDID": "123",
     "WELCOME":"welcome",
     "GAMERZCLASSFAQ": "faq",
     "RULES": "rules",
@@ -22,7 +22,7 @@
     "MAINCATEGORY": "gamerzclass",
     "GENERALCHANNEL": "general",
     "DOTACHANNELS": "Dota 2",
-    "RALLEG": "552894637468024833",
-    "MIRCH": "221400165758664704",
-    "LERGG": "194883424408829952"
+    "User1": "123",
+    "User2": "436",
+    "User3: "789"
 }
