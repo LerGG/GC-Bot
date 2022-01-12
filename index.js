@@ -99,8 +99,8 @@ client.on('guildMemberUpdate', (oldMember, newMember) => {
     ${_toChannel(daylieVideoChannel.id)}, ${_toChannel(replayChannel.id)}, ${_toChannel(liveSessionChannel.id)}
     Submit a replay or Dotabuff and have a chance to get it analyzed by one of our coaches here: 
     ${_toChannel(replaySubmitChannel.id)}, ${_toChannel(dotabuffSubmitChannel.id)}
-    If you have any questions regarding GamerzClass service, contact ${_toMention(RALLEG)} or ${_toMention(MIRCH)}. \n\
-    For Dota related questions, just ask ${_toMention(LERGG)} or any other coach here ${_toChannel(qandaChannel.id)}. \n\
+    If you have any questions regarding GamerzClass service, contact ${_toMention(User1)} or ${_toMention(User2)}. \n\
+    For Dota related questions, just ask ${_toMention(User3)} or any other coach here ${_toChannel(qandaChannel.id)}. \n\
     \n\
     *Your GamerzClass Team*\n\
     \n\
